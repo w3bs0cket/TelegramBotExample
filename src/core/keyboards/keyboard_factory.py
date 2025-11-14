@@ -1,9 +1,26 @@
+from typing import ClassVar, List
+
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from .utils import build
+from ..database.tables.tables import DaySettings
 
 class KeyboardFactory:
+    days_names: ClassVar[dict[int, str]] = {
+        1: "Понедельник",
+        2: "Вторник",
+        3: "Среда",
+        4: "Четверг",
+        5: "Пятница",
+        6: "Суббота",
+        7: "Воскресенье",
+    }
+
+    @classmethod
+    def day_name(cls, i: int) -> str:
+        return cls.days_names[i]
+
     @staticmethod
     def _btn(t: str, c: str) -> InlineKeyboardButton:
         return InlineKeyboardButton(
@@ -30,3 +47,32 @@ class KeyboardFactory:
                 "main_menu:phones"
             )
         )
+
+    @build
+    def settings_menu(b: InlineKeyboardBuilder) -> InlineKeyboardMarkup:
+        b.row(
+            KeyboardFactory._btn(
+                "Задержка поднятий",
+                "settings_menu:up_delay"
+            )
+        )
+        b.row(
+            KeyboardFactory._btn(
+                "Разброс",
+                "settings_menu:offset"
+            )
+        )
+
+    @build
+    def calendar_menu(days: List[DaySettings], b: InlineKeyboardBuilder) -> InlineKeyboardMarkup:
+        for day in days:
+            emoji = "🟢" if day.active else "⚪"
+            text = f"{emoji} {KeyboardFactory.day_name(day.day_number)}"
+            callback_data = "days:day:1"
+
+            btn = KeyboardFactory._btn(text, callback_data)
+
+            if day.day_number in {1, 3, 5, 7}:
+                b.row(btn)
+            else:
+                b.add(btn)

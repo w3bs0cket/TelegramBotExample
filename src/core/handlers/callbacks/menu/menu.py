@@ -3,6 +3,7 @@ from typing import Dict
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
+from ....database.repositories.days import DayRepos
 from ....keyboards import KeyboardFactory
 from ..annotations import Handler
 
@@ -11,7 +12,8 @@ class MenuHandlers:
         self.__handlers: Dict[str, Handler] = {
             "menu": self._menu,
             "settings": self._settings_menu,
-            "calendar": self._calendar_menu
+            "calendar": self._calendar_menu,
+            "phones": self._phones_menu
         }
 
     async def _menu(self, call: CallbackQuery) -> None:
@@ -23,25 +25,31 @@ class MenuHandlers:
     async def _settings_menu(self, call: CallbackQuery) -> None:
         await call.message.edit_text(
             text="⚙️ <b>Настройки</b>",
-            reply_markup=KeyboardFactory.settings_menu()
+            reply_markup=KeyboardFactory.settings_menu(back_callback="main_menu:menu")
         )
 
-    async def _calendar_menu(self, call: CallbackQuery) -> None:
+    async def _calendar_menu(self, call: CallbackQuery, repo: DayRepos) -> None:
+        days = await repo.get_days()
+        if not days:
+            await call.answer("Календарь пуст.")
+            return
+
         await call.message.edit_text(
             text="🗓️ <b>Календарь поднятий</b>",
-            reply_markup=KeyboardFactory.calendar_manu()
+            reply_markup=KeyboardFactory.calendar_menu(days=days, back_callback="main_menu:menu")
         )
 
     async def _phones_menu(self, call: CallbackQuery) -> None:
         await call.message.edit_text(
-            text="📞 <b>Номера для поднятий</b>",
-            reply_markup=KeyboardFactory.phones_page()
+            text="📞 <b>Номера для поднятий</b>"
+            # reply_markup=KeyboardFactory.phones_page(back_callback="main_menu:menu")
         )
 
     async def handle(
         self, 
         call: CallbackQuery, 
-        state: FSMContext
+        state: FSMContext,
+        day_repo: DayRepos
     ) -> None:
         await state.clear()
 
@@ -53,5 +61,11 @@ class MenuHandlers:
         
         match action:
             case "menu":
+                await handler(call)
+            case "calendar":
+                await handler(call, day_repo)
+            case "settings":
+                await handler(call)
+            case "phones":
                 await handler(call)
 

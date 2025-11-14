@@ -4,9 +4,11 @@ from typing import Optional
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import InlineKeyboardButton
 
-def build(func, back_callback: Optional[str] = None):
+def build(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
+        back_callback: Optional[str] = kwargs.pop("back_callback", None)
+
         builder = InlineKeyboardBuilder()
         func(*args, b=builder, **kwargs)
 
@@ -17,6 +19,6 @@ def build(func, back_callback: Optional[str] = None):
                     callback_data=back_callback
                 )
             )
-            
+
         return builder.as_markup()
     return wrapper
