@@ -4,7 +4,7 @@ import logging
 from sqlalchemy.orm.exc import StaleDataError
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.engine import Result
-from sqlalchemy import Select
+from sqlalchemy import Select, Delete, Update
 
 def one(func):
     @wraps(func)
@@ -40,13 +40,29 @@ def add(func):
             await self.s.rollback()
     return wrapper
 
+def upd(func):
+    @wraps(func)
+    async def wrapper(self, *args, **kwargs):
+        query: Update = await func(self, *args, **kwargs)
+
+        try:
+            result = await self.s.execute(query)
+            await self.s.commit()
+
+            return result.scalar_one()
+        except Exception as e:
+            logging.getLogger("DatabaseUpd").error("Ошибка: %s", e)
+            
+            await self.s.rollback()
+    return wrapper
+
 def rem(func):
     @wraps(func)
     async def wrapper(self, *args, **kwargs):
-        value = await func(self, *args, **kwargs)
+        query: Delete = await func(self, *args, **kwargs)
 
         try:
-            await self.s.execute(value)
+            await self.s.execute(query)
             await self.s.commit()
         except (NoResultFound, StaleDataError):
             await self.s.rollback()

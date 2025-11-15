@@ -35,19 +35,19 @@ class KeyboardFactory:
     def main_menu(b: InlineKeyboardBuilder) -> InlineKeyboardMarkup:
         b.row(
             KeyboardFactory._btn(
-                "Настройки",
+                "⚙️ Настройки",
                 "main_menu:settings"
             )
         )
         b.row(
             KeyboardFactory._btn(
-                "Календарь",
+                "📅 Календарь",
                 "main_menu:calendar"
             )
         )
         b.row(
             KeyboardFactory._btn(
-                "Номера",
+                "📞 Номера",
                 "main_menu:phones:1"
             )
         )
@@ -72,7 +72,7 @@ class KeyboardFactory:
         for day in days:
             emoji = "🟢" if day.active else "⚪"
             text = f"{emoji} {KeyboardFactory.day_name(day.day_number)}"
-            callback_data = "days:day:1"
+            callback_data = "days:day:{}".format(day.day_number)
 
             btn = KeyboardFactory._btn(text, callback_data)
 
@@ -117,5 +117,14 @@ class KeyboardFactory:
             KeyboardFactory._btn(
                 "->",
                 "main_menu:phones:{}".format(int(page)+1)
+            )
+        )
+
+    @build
+    def day_menu(day: DaySettings, b: InlineKeyboardBuilder) -> InlineKeyboardMarkup:
+        b.row(
+            KeyboardFactory._btn(
+                "🟢" if day.active is False else "⚪",
+                "days:activate:{}".format(day.day_number)
             )
         )

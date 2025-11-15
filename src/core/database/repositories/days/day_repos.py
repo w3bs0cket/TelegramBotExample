@@ -2,10 +2,10 @@ from datetime import datetime
 from typing import List, Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 from ...tables.tables import DaySettings
-from ..utils import one, all
+from ..utils import one, all, upd
 
 class DayRepos:
     def __init__(self, session: AsyncSession):
@@ -25,3 +25,7 @@ class DayRepos:
     @all
     async def get_days(self) -> List[DaySettings]:
         return select(DaySettings)
+    
+    @upd
+    async def reverse_active_status(self, day_index: int) -> DaySettings:
+        return update(DaySettings).where(DaySettings.day_number == day_index).values(active=~DaySettings.active).returning(DaySettings)

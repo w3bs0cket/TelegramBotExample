@@ -32,7 +32,7 @@ class MenuHandlers:
     async def _calendar_menu(self, call: CallbackQuery, repo: DayRepos) -> None:
         days = await repo.get_days()
         if not days:
-            await call.answer("Календарь пуст.")
+            await call.answer("⚠️ Календарь пуст.")
             return
 
         await call.message.edit_text(
