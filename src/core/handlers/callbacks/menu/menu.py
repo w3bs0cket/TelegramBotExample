@@ -4,6 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from ....database.repositories.days import DayRepos
+from ....database.repositories.phones import PhoneRepos
 from ....keyboards import KeyboardFactory
 from ..annotations import Handler
 
@@ -39,17 +40,27 @@ class MenuHandlers:
             reply_markup=KeyboardFactory.calendar_menu(days=days, back_callback="main_menu:menu")
         )
 
-    async def _phones_menu(self, call: CallbackQuery) -> None:
+    async def _phones_menu(self, call: CallbackQuery, repo: PhoneRepos) -> None:
+        page = int(call.data.split(":")[-1])
+        
+        phones = await repo.get_phones_page(page)
+
+        epoch_value = 0
+        for phone in phones:
+            if phone.viewed:
+                epoch_value += 1
+
         await call.message.edit_text(
-            text="📞 <b>Номера для поднятий</b>"
-            # reply_markup=KeyboardFactory.phones_page(back_callback="main_menu:menu")
+            text="📞 <b>Номера для поднятий</b>\n\nВсего: <code>{}</code>\nТекущий круг: <code>{}</code>".format(len(phones), epoch_value),
+            reply_markup=KeyboardFactory.phones_page(phones=phones, page=page, back_callback="main_menu:menu")
         )
 
     async def handle(
         self, 
         call: CallbackQuery, 
         state: FSMContext,
-        day_repo: DayRepos
+        day_repo: DayRepos,
+        phone_repo: PhoneRepos
     ) -> None:
         await state.clear()
 
@@ -67,5 +78,5 @@ class MenuHandlers:
             case "settings":
                 await handler(call)
             case "phones":
-                await handler(call)
+                await handler(call, phone_repo)
 

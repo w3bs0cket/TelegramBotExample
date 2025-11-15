@@ -8,8 +8,11 @@ from aiogram import Dispatcher
 
 from src.core.routers import build_user_router
 from src.core import build_infra
+from src.utils import init
 
 async def main() -> None:
+    await init()
+
     di = await build_infra()
 
     user_router = build_user_router(di)

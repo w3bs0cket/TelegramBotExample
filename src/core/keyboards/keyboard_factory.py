@@ -4,7 +4,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from .utils import build
-from ..database.tables.tables import DaySettings
+from ..database.tables.tables import DaySettings, Phones
 
 class KeyboardFactory:
     days_names: ClassVar[dict[int, str]] = {
@@ -44,7 +44,7 @@ class KeyboardFactory:
         b.row(
             KeyboardFactory._btn(
                 "Номера",
-                "main_menu:phones"
+                "main_menu:phones:1"
             )
         )
 
@@ -76,3 +76,33 @@ class KeyboardFactory:
                 b.row(btn)
             else:
                 b.add(btn)
+
+    @build
+    def phones_page(phones: List[Phones], page: int, b: InlineKeyboardBuilder) -> InlineKeyboardMarkup:
+        for i, phone in enumerate(phones):
+            btn = KeyboardFactory._btn(phone.phone, "phones:phone:{}".format(phone.id))
+
+            if i==0 or i%3 == 0:
+                b.row(btn)
+            else:
+                b.add(btn)
+
+        b.row(
+            KeyboardFactory._btn(
+                "➕ Добавить",
+                "phones:add"
+            )
+        )
+
+        b.row(
+            KeyboardFactory._btn(
+                "<-",
+                "main_menu:phones:{}".format(int(page)-1)
+            )
+        )
+        b.add(
+            KeyboardFactory._btn(
+                "->",
+                "main_menu:phones:{}".format(int(page)+1)
+            )
+        )

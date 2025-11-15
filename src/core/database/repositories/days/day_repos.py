@@ -16,9 +16,10 @@ class DayRepos:
         return datetime.weekday() + 1
 
     @one
-    async def get_day(self) -> Optional[DaySettings]:
+    async def get_day(self, day_index: int = None) -> Optional[DaySettings]:
+        i = self.day_index if day_index is None else day_index
         return select(DaySettings).where(
-            DaySettings.day_number == self.day_index
+            DaySettings.day_number == i
         )
     
     @all
