@@ -2,10 +2,10 @@ from datetime import datetime
 from typing import List, Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, delete
 
 from ...tables.tables import Phones
-from ..utils import one, all, add
+from ..utils import one, all, add, rem
 
 class PhoneRepos:
     def __init__(self, session: AsyncSession):
@@ -20,6 +20,10 @@ class PhoneRepos:
     @add
     async def add(self, phone: str) -> None:
         return Phones(phone=phone)
+    
+    @rem
+    async def remove(self, phone_id: int) -> None:
+        return delete(Phones).where(Phones.id == phone_id)
     
     @one
     async def get_phone(self, i: int = None, phone: str = None) -> Optional[Phones]:

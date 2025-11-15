@@ -11,7 +11,9 @@ from ...states.shemas import Phone as PhoneStates
 class PhoneHandlers:
     def __init__(self):
         self.__handlers: Dict[str, Handler] = {
-            "add": self._add
+            "add": self._add,
+            "remove": self._remove,
+            "phone": self._phone
         }
 
     async def _add(
@@ -28,6 +30,37 @@ class PhoneHandlers:
 
         await state.update_data({"message_id": msg.message_id})
 
+    async def _phone(
+        self,
+        call: CallbackQuery,
+        repo: PhoneRepos
+    ) -> None:
+        phone_id = call.data.split(":")[-1]
+
+        phone = await repo.get_phone(i=int(phone_id))
+        if not phone:
+            await call.answer("Запись не найдена.")
+            return
+
+        await call.message.edit_text(
+            text="📞 Номер: <code>{}</code>\n\nПоднимался в текущем цикле: <b>{}</b>".format(phone.phone, "Да" if phone.viewed else "Нет"),
+            reply_markup=KeyboardFactory.phone(phone_id=phone_id, back_callback="main_menu:phones:1")
+        )
+
+    async def _remove(
+        self,
+        call: CallbackQuery,
+        repo: PhoneRepos
+    ) -> None:
+        phone_id = call.data.split(":")[-1]
+
+        await repo.remove(int(phone_id))
+
+        await call.message.edit_text(
+            text="✅ Номер удален.",
+            reply_markup=KeyboardFactory.empty(back_callback="main_menu:phones:1")
+        )
+
     async def handle(
         self,
         call: CallbackQuery,
@@ -42,3 +75,7 @@ class PhoneHandlers:
         match action:
             case "add":
                 await handler(call,state)
+            case "remove":
+                await handler(call, phone_repo)
+            case "phone":
+                await handler(call, phone_repo)

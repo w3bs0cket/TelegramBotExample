@@ -1,6 +1,8 @@
 from functools import wraps
 import logging
 
+from sqlalchemy.orm.exc import StaleDataError
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.engine import Result
 from sqlalchemy import Select
 
@@ -34,6 +36,23 @@ def add(func):
             await self.s.commit()
         except Exception as e:
             logging.getLogger("DatabaseAdd").error("Ошибка: %s", e)
+
+            await self.s.rollback()
+    return wrapper
+
+def rem(func):
+    @wraps(func)
+    async def wrapper(self, *args, **kwargs):
+        value = await func(self, *args, **kwargs)
+
+        try:
+            await self.s.execute(value)
+            await self.s.commit()
+        except (NoResultFound, StaleDataError):
+            await self.s.rollback()
+            return
+        except Exception as e:
+            logging.getLogger("DatabaseRem").error("Ошибка: %s", e)
 
             await self.s.rollback()
     return wrapper

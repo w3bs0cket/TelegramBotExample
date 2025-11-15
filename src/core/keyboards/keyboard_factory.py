@@ -82,6 +82,15 @@ class KeyboardFactory:
                 b.add(btn)
 
     @build
+    def phone(phone_id: int, b: InlineKeyboardBuilder) -> InlineKeyboardMarkup:
+        b.row(
+            KeyboardFactory._btn(
+                "🗑️ Удалить",
+                f"phones:remove:{phone_id}"
+            )
+        )
+
+    @build
     def phones_page(phones: List[Phones], page: int, b: InlineKeyboardBuilder) -> InlineKeyboardMarkup:
         for i, phone in enumerate(phones):
             btn = KeyboardFactory._btn(phone.phone, "phones:phone:{}".format(phone.id))
