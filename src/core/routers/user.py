@@ -1,11 +1,14 @@
 from aiogram import Router, F
+from aiogram.filters import StateFilter
 from aiogram.filters.command import CommandStart
 
 from ..di import Container
 from ..middlewares import RepositoriesMiddleware, KeyboardsMiddleware
 from ..handlers.messages import CommandsHandler
-from ..handlers.callbacks import MenuHandlers
+from ..handlers.callbacks import MenuHandlers, PhoneHandlers
+from ..handlers.states import PhoneFsmHnalders
 from ..keyboards import KeyboardFactory
+from ..handlers.states.shemas import Phone as PhoneStateGroup
 
 def build(di: Container) -> Router:
     r = Router(name="Users")
@@ -15,11 +18,16 @@ def build(di: Container) -> Router:
 
     r.message.register(CommandsHandler.start, CommandStart())
 
+    phone_fsm_handlers = PhoneFsmHnalders()
+    r.message.register(phone_fsm_handlers.handle, StateFilter(PhoneStateGroup))
+
     r.callback_query.middleware(KeyboardsMiddleware(keyboard_factory=KeyboardFactory))
     r.callback_query.middleware(RepositoriesMiddleware(di.db))
 
-    menu_handler = MenuHandlers()
+    menu_handlers = MenuHandlers()
+    phone_handlers = PhoneHandlers()
 
-    r.callback_query.register(menu_handler.handle, F.data.startswith("main_menu:"))
+    r.callback_query.register(menu_handlers.handle, F.data.startswith("main_menu:"))
+    r.callback_query.register(phone_handlers.handle, F.data.startswith("phones:"))
 
     return r

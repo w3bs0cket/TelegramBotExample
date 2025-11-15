@@ -1,2 +1,1 @@
-from .menu import MenuHandlers
 from .phones import PhoneHandlers

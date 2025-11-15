@@ -1,4 +1,5 @@
 from functools import wraps
+import logging
 
 from sqlalchemy.engine import Result
 from sqlalchemy import Select
@@ -9,11 +10,7 @@ def one(func):
         query: Select = await func(self, *args, **kwargs)
         result: Result = await self.s.execute(query)
 
-        value = result.scalars().one_or_none()
-        if value is None:
-            raise RuntimeError(f"Record not found for query: {query}")
-        
-        return value
+        return result.scalars().one_or_none()
     return wrapper
 
 def all(func):
@@ -25,4 +22,18 @@ def all(func):
         value = result.scalars().all()
         
         return value
+    return wrapper
+
+def add(func):
+    @wraps(func)
+    async def wrapper(self, *args, **kwargs):
+        value = await func(self, *args, **kwargs)
+
+        try:
+            self.s.add(value)
+            await self.s.commit()
+        except Exception as e:
+            logging.getLogger("DatabaseAdd").error("Ошибка: %s", e)
+
+            await self.s.rollback()
     return wrapper

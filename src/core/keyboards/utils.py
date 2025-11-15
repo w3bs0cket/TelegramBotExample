@@ -8,6 +8,7 @@ def build(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         back_callback: Optional[str] = kwargs.pop("back_callback", None)
+        cancel_callback: Optional[str] = kwargs.pop("cancel_callback", None)
 
         builder = InlineKeyboardBuilder()
         func(*args, b=builder, **kwargs)
@@ -17,6 +18,14 @@ def build(func):
                 InlineKeyboardButton(
                     text="⬅️ Назад",
                     callback_data=back_callback
+                )
+            )
+
+        if cancel_callback:
+            builder.row(
+                InlineKeyboardButton(
+                    text="❌ Отмена",
+                    callback_data=cancel_callback
                 )
             )
 

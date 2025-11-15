@@ -42,8 +42,16 @@ class MenuHandlers:
 
     async def _phones_menu(self, call: CallbackQuery, repo: PhoneRepos) -> None:
         page = int(call.data.split(":")[-1])
+
+        if page < 1:
+            await call.answer("⚠️ Вы на первой странице.")
+            return
         
         phones = await repo.get_phones_page(page)
+
+        if page > 1 and len(phones) < 1:
+            await call.answer("⚠️ Вы на последней странице.")
+            return
 
         epoch_value = 0
         for phone in phones:

@@ -28,6 +28,10 @@ class KeyboardFactory:
         )
 
     @build
+    def empty(b: InlineKeyboardBuilder) -> InlineKeyboardMarkup:
+        pass
+
+    @build
     def main_menu(b: InlineKeyboardBuilder) -> InlineKeyboardMarkup:
         b.row(
             KeyboardFactory._btn(
