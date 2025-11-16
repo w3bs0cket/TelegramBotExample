@@ -11,7 +11,7 @@ from src.core import build_infra
 from src.utils import init
 
 async def main() -> None:
-    await init() # <-- don't use in prod. only for dev state
+    await init() # <-- don't use in prod. only for dev state.
 
     di = await build_infra()
 

@@ -1,2 +1,3 @@
 from .repos import RepositoriesMiddleware
-from .keyboard import KeyboardsMiddleware
+from .redis import RedisMiddleware
+from .whitelist import WhiteListMiddleware

@@ -32,6 +32,15 @@ class KeyboardFactory:
         pass
 
     @build
+    def log_ok(b: InlineKeyboardBuilder) -> InlineKeyboardMarkup:
+        b.row(
+            KeyboardFactory._btn(
+                "👌",
+                "log:delete"
+            )
+        )
+
+    @build
     def main_menu(b: InlineKeyboardBuilder) -> InlineKeyboardMarkup:
         b.row(
             KeyboardFactory._btn(
