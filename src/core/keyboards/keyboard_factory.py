@@ -76,7 +76,7 @@ class KeyboardFactory:
 
             btn = KeyboardFactory._btn(text, callback_data)
 
-            if day.day_number in {1, 3, 5, 7}:
+            if day.day_number in {1, 3, 5, 6}:
                 b.row(btn)
             else:
                 b.add(btn)
@@ -121,10 +121,51 @@ class KeyboardFactory:
         )
 
     @build
-    def day_menu(day: DaySettings, b: InlineKeyboardBuilder) -> InlineKeyboardMarkup:
+    def day_menu(
+        day: DaySettings, 
+        b: InlineKeyboardBuilder
+    ) -> InlineKeyboardMarkup:
         b.row(
             KeyboardFactory._btn(
-                "🟢" if day.active is False else "⚪",
+                "<",
+                "days:start:{}:{}".format(day.day_number, (day.start_hour - 1) % 24)
+            )
+        )
+        b.add(
+            KeyboardFactory._btn(
+                "Начало",
+                "days:hint:1"
+            )
+        )
+        b.add(
+            KeyboardFactory._btn(
+                ">",
+                "days:start:{}:{}".format(day.day_number, (day.start_hour + 1) % 24)
+            )
+        )
+
+        b.row(
+            KeyboardFactory._btn(
+                "<",
+                "days:end:{}:{}".format(day.day_number, (day.end_hour - 1) % 24)
+            )
+        )
+        b.add(
+            KeyboardFactory._btn(
+                "Конец",
+                "days:hint"
+            )
+        )
+        b.add(
+            KeyboardFactory._btn(
+                ">",
+                "days:end:{}:{}".format(day.day_number, (day.end_hour + 1) % 24)
+            )
+        )
+
+        b.row(
+            KeyboardFactory._btn(
+                "⚪" if day.active is False else "🟢",
                 "days:activate:{}".format(day.day_number)
             )
         )

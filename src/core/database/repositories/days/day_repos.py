@@ -24,8 +24,16 @@ class DayRepos:
     
     @all
     async def get_days(self) -> List[DaySettings]:
-        return select(DaySettings)
+        return select(DaySettings).order_by(DaySettings.day_number)
     
     @upd
     async def reverse_active_status(self, day_index: int) -> DaySettings:
         return update(DaySettings).where(DaySettings.day_number == day_index).values(active=~DaySettings.active).returning(DaySettings)
+    
+    @upd
+    async def update_start_time(self, day_index: int, new_value: int) -> DaySettings:
+        return update(DaySettings).where(DaySettings.day_number == day_index).values(start_hour=new_value).returning(DaySettings)
+    
+    @upd
+    async def update_end_time(self, day_index: int, new_value: int) -> DaySettings:
+        return update(DaySettings).where(DaySettings.day_number == day_index).values(end_hour=new_value).returning(DaySettings)
