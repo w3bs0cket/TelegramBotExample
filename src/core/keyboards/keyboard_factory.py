@@ -4,7 +4,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from .utils import build
-from ..database.tables.tables import DaySettings, Phones
+from ..database.tables.tables import DaySettings, Phones, Settings
 
 class KeyboardFactory:
     days_names: ClassVar[dict[int, str]] = {
@@ -53,17 +53,42 @@ class KeyboardFactory:
         )
 
     @build
-    def settings_menu(b: InlineKeyboardBuilder) -> InlineKeyboardMarkup:
+    def settings_menu(b: InlineKeyboardBuilder, settings: Settings) -> InlineKeyboardMarkup:
         b.row(
             KeyboardFactory._btn(
-                "Задержка поднятий",
-                "settings_menu:up_delay"
+                "<",
+                "settings:delay:{}".format(max(settings.up_delay - 5, 10))
             )
         )
+        b.add(
+            KeyboardFactory._btn(
+                "Задержка поднятий",
+                "settings:hint"
+            )
+        )
+        b.add(
+            KeyboardFactory._btn(
+                ">",
+                "settings:delay:{}".format(settings.up_delay + 5)
+            )
+        )
+
         b.row(
             KeyboardFactory._btn(
+                "<",
+                "settings:offset:{}".format(max(settings.up_offset - 5, 0))
+            )
+        )
+        b.add(
+            KeyboardFactory._btn(
                 "Разброс",
-                "settings_menu:offset"
+                "settings:hint"
+            )
+        )
+        b.add(
+            KeyboardFactory._btn(
+                ">",
+                "settings:offset:{}".format(settings.up_offset + 5)
             )
         )
 

@@ -61,13 +61,13 @@ class DayHandlers:
         state: FSMContext,
         day_repo: DayRepos
     ) -> None:
-        await call.answer()
         await state.clear()
 
         call_data = call.data.split(":")
 
         handler = self.__handlers.get(call_data[1])
         if not handler:
+            await call.answer()
             return
 
         match call_data:

@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from ..core.database.tables.base import BaseModel
-from ..core.database.tables.tables import DaySettings
+from ..core.database.tables.tables import DaySettings, Settings
 
 async def seed_days(async_session_maker: async_sessionmaker[AsyncSession]) -> None:
     async with async_session_maker() as session:
@@ -22,6 +22,8 @@ async def seed_days(async_session_maker: async_sessionmaker[AsyncSession]) -> No
             session.add_all(
                 [DaySettings(day_number=i) for i in range(1, 8)]
             )
+            session.add(Settings())
+            
             await session.commit()
 
 async def init() -> None:

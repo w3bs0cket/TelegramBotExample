@@ -5,6 +5,7 @@ from aiogram.types import CallbackQuery
 
 from ....database.repositories.days import DayRepos
 from ....database.repositories.phones import PhoneRepos
+from ....database.repositories.settings import SettingRepos
 from ....keyboards import KeyboardFactory
 from ..annotations import Handler
 
@@ -23,10 +24,12 @@ class MenuHandlers:
             reply_markup=KeyboardFactory.main_menu()
         )
 
-    async def _settings_menu(self, call: CallbackQuery) -> None:
+    async def _settings_menu(self, call: CallbackQuery, repo: SettingRepos) -> None:
+        settings = await repo.get_settings()
+
         await call.message.edit_text(
-            text="⚙️ <b>Настройки</b>",
-            reply_markup=KeyboardFactory.settings_menu(back_callback="main_menu:menu")
+            text="⚙️ <b>Настройки</b>\n\n⌛ Задержка поднятий: <code>{}</code>\n💤 Разброс: <code>{}</code>".format(settings.up_delay, settings.up_offset),
+            reply_markup=KeyboardFactory.settings_menu(settings=settings, back_callback="main_menu:menu")
         )
 
     async def _calendar_menu(self, call: CallbackQuery, repo: DayRepos) -> None:
@@ -68,7 +71,8 @@ class MenuHandlers:
         call: CallbackQuery, 
         state: FSMContext,
         day_repo: DayRepos,
-        phone_repo: PhoneRepos
+        phone_repo: PhoneRepos,
+        setting_repo: SettingRepos
     ) -> None:
         await state.clear()
 
@@ -84,7 +88,7 @@ class MenuHandlers:
             case "calendar":
                 await handler(call, day_repo)
             case "settings":
-                await handler(call)
+                await handler(call, setting_repo)
             case "phones":
                 await handler(call, phone_repo)
 

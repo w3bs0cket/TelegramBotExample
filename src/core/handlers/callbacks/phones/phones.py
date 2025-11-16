@@ -71,6 +71,9 @@ class PhoneHandlers:
 
         action = call.data.split(":")[1]
         handler = self.__handlers.get(action)
+        if not handler:
+            await call.answer()
+            return
 
         match action:
             case "add":
