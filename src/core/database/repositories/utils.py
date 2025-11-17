@@ -26,6 +26,14 @@ def all(func):
         return value
     return wrapper
 
+def count(func):
+    @wraps(func)
+    async def wrapper(self, *args, **kwargs):
+        query: Select = await func(self, *args, **kwargs)
+        result = await self.s.execute(query)
+        return result.scalar()
+    return wrapper
+
 def add(func):
     @wraps(func)
     async def wrapper(self, *args, **kwargs):

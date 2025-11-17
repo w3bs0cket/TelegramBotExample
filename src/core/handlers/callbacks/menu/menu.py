@@ -56,13 +56,11 @@ class MenuHandlers:
             await call.answer("⚠️ Вы на последней странице.")
             return
 
-        epoch_value = 0
-        for phone in phones:
-            if phone.viewed:
-                epoch_value += 1
+        epoch_value = await repo.get_viewed()
+        total = await repo.get_total()
 
         await call.message.edit_text(
-            text="📞 <b>Номера для поднятий</b>\n\nВсего: <code>{}</code>\nТекущий круг: <code>{}</code>".format(len(phones), epoch_value),
+            text="📞 <b>Номера для поднятий</b>\n\nВсего: <code>{}</code>\nТекущий круг: <code>{}</code>".format(total, epoch_value),
             reply_markup=KeyboardFactory.phones_page(phones=phones, page=page, back_callback="main_menu:menu")
         )
 

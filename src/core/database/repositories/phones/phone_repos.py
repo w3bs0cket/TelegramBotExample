@@ -2,10 +2,10 @@ from datetime import datetime
 from typing import List, Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, func
 
 from ...tables.tables import Phones
-from ..utils import one, all, add, rem
+from ..utils import one, all, add, rem, count
 
 class PhoneRepos:
     def __init__(self, session: AsyncSession):
@@ -16,6 +16,14 @@ class PhoneRepos:
         offset = (page - 1) * limit
 
         return select(Phones).offset(offset).limit(limit)
+    
+    @count
+    async def get_total(self):
+        return select(func.count()).select_from(Phones)
+    
+    @count
+    async def get_viewed(self):
+        return select(func.count()).select_from(Phones).where(Phones.viewed==True)
     
     @add
     async def add(self, phone: str) -> None:
