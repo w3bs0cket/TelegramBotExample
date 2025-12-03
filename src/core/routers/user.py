@@ -20,8 +20,8 @@ def build(di: Container) -> Router:
 
     di.redis.subscribe_handler(RedisLogHandler(di.bot).handler)
 
-    # r.message.middleware(WhiteListMiddleware(admin=os.getenv("ADMIN_ID")))
-    # r.callback_query.middleware(WhiteListMiddleware(admin=os.getenv("ADMIN_ID")))
+    r.message.middleware(WhiteListMiddleware(admin=os.getenv("ADMIN_ID")))
+    r.callback_query.middleware(WhiteListMiddleware(admin=os.getenv("ADMIN_ID")))
 
     r.message.middleware(RedisMiddleware(redis=di.redis))
     r.message.middleware(RepositoriesMiddleware(di.db))

@@ -33,6 +33,10 @@ class PhoneRepos:
     async def remove(self, phone_id: int) -> None:
         return delete(Phones).where(Phones.id == phone_id)
     
+    @rem
+    async def clear_table(self) -> None:
+        return delete(Phones)
+    
     @one
     async def get_phone(self, i: int = None, phone: str = None) -> Optional[Phones]:
         if not i and not phone:

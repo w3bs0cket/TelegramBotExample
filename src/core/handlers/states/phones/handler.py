@@ -11,7 +11,8 @@ from ...callbacks.annotations import Handler
 class PhoneFsmHnalders:
     def __init__(self):
         self.__handlers: Dict[str, Handler] = {
-            "add_phone": self._add
+            "add_phone": self._add,
+            "remove_phone": self._delete
         }
 
         self._logger = logging.getLogger("PhoneFsmHandler")
@@ -41,6 +42,50 @@ class PhoneFsmHnalders:
             return None
 
         return f"+{digits}"
+    
+    async def _delete(
+        self,
+        msg: Message,
+        state: FSMContext,
+        repo: PhoneRepos
+    ) -> None:
+        if not msg.text:
+            await msg.answer(
+                "Не правильный формат.",
+                reply_markup=KeyboardFactory.empty(cancel_callback="main_menu:phones:1")
+            )
+            return
+        
+        phones = []
+
+        if "\n" in msg.text:
+            phones = msg.text.split("\n")
+        else:
+            phones.append(msg.text.strip())
+
+        await state.clear()
+
+        good = 0
+        for phone in phones:
+            phone = self.__normalize_phone(phone)
+            if not phone:
+                continue
+
+            exists = await repo.get_phone(phone=phone)
+            if not exists:
+                continue
+
+            try:
+                await repo.remove(phone_id=exists.id)
+
+                good += 1
+            except Exception as e:
+                self._logger.error("Ошибка добавления номера: %s | %s", e, phone)
+
+        await msg.answer(
+            "💡 Удалено: <code>{}</code> из <code>{}</code>".format(good, len(phones)),
+            reply_markup=KeyboardFactory.empty(back_callback="main_menu:phones:1")
+        )
 
     async def _add(
         self,
@@ -107,4 +152,6 @@ class PhoneFsmHnalders:
         
         match action:
             case "add_phone":
+                await handler(message, state, phone_repo)
+            case "remove_phone":
                 await handler(message, state, phone_repo)

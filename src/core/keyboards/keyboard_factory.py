@@ -154,6 +154,49 @@ class KeyboardFactory:
             )
         )
 
+        b.row(
+            KeyboardFactory._btn(
+                "🔧 Управление",
+                "phones:control"
+            )
+        )
+
+    @build
+    def phones_controle_menu(b: InlineKeyboardBuilder) -> InlineKeyboardBuilder:
+        b.row(
+            KeyboardFactory._btn(
+                "🛑 Удалить все",
+                "phones:confirmation:delete_all"
+            )
+        )
+
+        b.add(
+            KeyboardFactory._btn(
+                "⭕ Удалить выборочно",
+                "phones:delete_someone"
+            )
+        )
+
+    @build
+    def confirmation(
+        y_callback: str,
+        n_callback: str,
+        b: InlineKeyboardBuilder
+    ) -> InlineKeyboardBuilder:
+        b.row(
+            KeyboardFactory._btn(
+                "✅ Да",
+                y_callback
+            )
+        )
+
+        b.add(
+            KeyboardFactory._btn(
+                "❌ Нет",
+                n_callback
+            )
+        )
+
     @build
     def day_menu(
         day: DaySettings, 
